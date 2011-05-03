@@ -1,5 +1,5 @@
 class Jiras
-    STATES = [:open, :in_progress, :ready_for_review, :ready_for_acc_testing, :closed, :backlog]
+    STATES = [:backlog, :open, :in_progress, :ready_for_review, :ready_for_acc_testing, :closed]
     attr_accessor :domain, :jiras
 
     # Returns a new xml object restricted to a particular jira domain

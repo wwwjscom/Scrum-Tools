@@ -9,9 +9,6 @@ require 'comparator'
 
 begin
     raise if ARGV.size !=2
-    #file = File.open(ARGV[0])
-    #@@doc = Nokogiri::XML(file)
-    #file.close
     @@doc = Nokogiri::XML(open(ARGV[0]))
     @start_of_sprint = (ARGV[1].downcase.chomp == 's') ? true : false
 rescue
@@ -70,17 +67,10 @@ if !@start_of_sprint
     print "|| #{@sprint.get_all_jiras("Bug", :planned).count + @sprint.get_all_jiras("Bug", :added).count + @sprint.get_all_jiras("Bug", :removed).count}"
     print "|| #{@sprint.sum_all_expected}\n"
 
-
-    # Build the retrospective table
-    completed = Jiras.new(:closed)
-    incomplete = Jiras.new(:in_progress)
-    not_started = Jiras.new(:open)
-    backlog = Jiras.new(:backlog)
-
-    puts completed.to_table
-    puts incomplete.to_table
-    puts not_started.to_table
-    puts backlog.to_table
+    puts @sprint.get_jiras(:closed).to_table
+    puts @sprint.get_jiras(:in_progress).to_table
+    puts @sprint.get_jiras(:open).to_table
+    puts @sprint.get_jiras(:backlog).to_table
 
     puts "|| Carried Over || TBD || TBD || TBD ||\n\n"
 end
