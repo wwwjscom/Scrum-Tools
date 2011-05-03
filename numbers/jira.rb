@@ -1,8 +1,14 @@
 class Jira
-    attr_accessor :key, :expected, :type, :title, :planned, :added, :removed, :state
+    attr_accessor :key, :expected, :type, :title, :planned, :added, :removed
 
     def initialize(key)
         @key = key[0].content.strip
+    end
+
+    def temporal
+        return :planned if :planned
+        return :added if :added
+        return :removed if :removed
     end
 
     def expected=(e)

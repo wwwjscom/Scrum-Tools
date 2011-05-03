@@ -38,7 +38,7 @@ Jiras::STATES.each do |state|
     puts "="*50
     puts "#{state.to_s.upcase} | Expected Sum: #{@sprint.sum_expected(state)}"
     puts "="*50
-    Jiras.new(state).jiras.each do |j|
+    Jiras.new(state).find_all.each do |j|
         puts "#{j.key} | #{j.expected}\t| #{j.type}"
         if @start_of_sprint 
             # Serialize the jiras for comparison at the end of the sprint
@@ -56,16 +56,26 @@ Jiras::STATES.each do |state|
 end
 
 storage.close if @start_of_sprint
-jiras = Jiras.new
+
+puts "|| || Stories || Bugs || Ideal Days ||"
+puts "| Planned | #{@sprint.get_all_jiras("Story", :planned).count} | #{@sprint.get_all_jiras("Bug", :planned).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :planned)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :planned)).to_f} |"
+puts "| Added | #{@sprint.get_all_jiras("Story", :added).count} | #{@sprint.get_all_jiras("Bug", :added).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :added)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :added)).to_f} |"
+puts "| Removed | #{@sprint.get_all_jiras("Story", :removed).count} | #{@sprint.get_all_jiras("Bug", :removed).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :removed)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :removed)).to_f} |"
+print "|| Total in Sprint || #{@sprint.get_all_jiras("Story", :planned).count + @sprint.get_all_jiras("Story", :added).count + @sprint.get_all_jiras("Story", :removed).count}"
+print "|| #{@sprint.get_all_jiras("Bug", :planned).count + @sprint.get_all_jiras("Bug", :added).count + @sprint.get_all_jiras("Bug", :removed).count}"
+print "|| #{@sprint.sum_all_expected}\n"
 
 if !@start_of_sprint
     # Build the retrospective table
     completed = Jiras.new(:closed)
     incomplete = Jiras.new(:in_progress)
     not_started = Jiras.new(:open)
+    backlog = Jiras.new(:backlog)
 
-    puts "\t\t||\tStories\t||\tBugs\t||\tIdea Days\t||"
     puts completed.to_table
     puts incomplete.to_table
     puts not_started.to_table
+    puts backlog.to_table
 end
+
+puts "|| Carried Over || TBD || TBD || TBD ||"
