@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'open-uri'
 require 'paths'
 require 'jira'
 require 'jiras'
@@ -8,9 +9,10 @@ require 'comparator'
 
 begin
     raise if ARGV.size !=2
-    file = File.open(ARGV[0])
-    @@doc = Nokogiri::XML(file)
-    file.close
+    #file = File.open(ARGV[0])
+    #@@doc = Nokogiri::XML(file)
+    #file.close
+    @@doc = Nokogiri::XML(open(ARGV[0]))
     @start_of_sprint = (ARGV[1].downcase.chomp == 's') ? true : false
 rescue
     puts ""
@@ -45,7 +47,6 @@ Jiras::STATES.each do |state|
             storage.puts j.to_csv 
         else
             # Find any JIRAs that may have been added/removed from the sprint
-            puts @comparator.check(j).class
             case @comparator.check(j)
             when :planned then j.planned = true
             when :added then j.added = true
@@ -57,15 +58,19 @@ end
 
 storage.close if @start_of_sprint
 
-puts "|| || Stories || Bugs || Ideal Days ||"
-puts "| Planned | #{@sprint.get_all_jiras("Story", :planned).count} | #{@sprint.get_all_jiras("Bug", :planned).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :planned)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :planned)).to_f} |"
-puts "| Added | #{@sprint.get_all_jiras("Story", :added).count} | #{@sprint.get_all_jiras("Bug", :added).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :added)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :added)).to_f} |"
-puts "| Removed | #{@sprint.get_all_jiras("Story", :removed).count} | #{@sprint.get_all_jiras("Bug", :removed).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :removed)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :removed)).to_f} |"
-print "|| Total in Sprint || #{@sprint.get_all_jiras("Story", :planned).count + @sprint.get_all_jiras("Story", :added).count + @sprint.get_all_jiras("Story", :removed).count}"
-print "|| #{@sprint.get_all_jiras("Bug", :planned).count + @sprint.get_all_jiras("Bug", :added).count + @sprint.get_all_jiras("Bug", :removed).count}"
-print "|| #{@sprint.sum_all_expected}\n"
-
 if !@start_of_sprint
+
+    puts "\n\n\n And here is the table for the wiki \n\n\n"
+
+    puts "|| || Stories || Bugs || Ideal Days ||"
+    puts "| Planned | #{@sprint.get_all_jiras("Story", :planned).count} | #{@sprint.get_all_jiras("Bug", :planned).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :planned)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :planned)).to_f} |"
+    puts "| Added | #{@sprint.get_all_jiras("Story", :added).count} | #{@sprint.get_all_jiras("Bug", :added).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :added)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :added)).to_f} |"
+    puts "| Removed | #{@sprint.get_all_jiras("Story", :removed).count} | #{@sprint.get_all_jiras("Bug", :removed).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :removed)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :removed)).to_f} |"
+    print "|| Total in Sprint || #{@sprint.get_all_jiras("Story", :planned).count + @sprint.get_all_jiras("Story", :added).count + @sprint.get_all_jiras("Story", :removed).count}"
+    print "|| #{@sprint.get_all_jiras("Bug", :planned).count + @sprint.get_all_jiras("Bug", :added).count + @sprint.get_all_jiras("Bug", :removed).count}"
+    print "|| #{@sprint.sum_all_expected}\n"
+
+
     # Build the retrospective table
     completed = Jiras.new(:closed)
     incomplete = Jiras.new(:in_progress)
@@ -76,6 +81,7 @@ if !@start_of_sprint
     puts incomplete.to_table
     puts not_started.to_table
     puts backlog.to_table
+
+    puts "|| Carried Over || TBD || TBD || TBD ||\n\n"
 end
 
-puts "|| Carried Over || TBD || TBD || TBD ||"
