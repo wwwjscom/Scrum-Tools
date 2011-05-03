@@ -37,7 +37,8 @@ Jiras::STATES.each do |state|
     puts "="*50
     puts "#{state.to_s.upcase} | Expected Sum: #{@sprint.sum_expected(state)}"
     puts "="*50
-    Jiras.new(state).find_all.each do |j|
+    @sprint.jiras.of_state(state).each do |j|
+    #Jiras.new(state).find_all.each do |j|
         puts "#{j.key} | #{j.expected}\t| #{j.type}"
         if @start_of_sprint 
             # Serialize the jiras for comparison at the end of the sprint
@@ -60,17 +61,15 @@ if !@start_of_sprint
     puts "\n\n\n And here is the table for the wiki \n\n\n"
 
     puts "|| || Stories || Bugs || Ideal Days ||"
-    puts "| Planned | #{@sprint.get_all_jiras("Story", :planned).count} | #{@sprint.get_all_jiras("Bug", :planned).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :planned)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :planned)).to_f} |"
-    puts "| Added | #{@sprint.get_all_jiras("Story", :added).count} | #{@sprint.get_all_jiras("Bug", :added).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :added)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :added)).to_f} |"
-    puts "| Removed | #{@sprint.get_all_jiras("Story", :removed).count} | #{@sprint.get_all_jiras("Bug", :removed).count} | #{@sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Story", :removed)).to_f + @sprint.sum_expected_for_these_jiras(@sprint.get_all_jiras("Bug", :removed)).to_f} |"
-    print "|| Total in Sprint || #{@sprint.get_all_jiras("Story", :planned).count + @sprint.get_all_jiras("Story", :added).count + @sprint.get_all_jiras("Story", :removed).count}"
-    print "|| #{@sprint.get_all_jiras("Bug", :planned).count + @sprint.get_all_jiras("Bug", :added).count + @sprint.get_all_jiras("Bug", :removed).count}"
-    print "|| #{@sprint.sum_all_expected}\n"
+    puts @sprint.jiras.to_table_top(:planned)
+    puts @sprint.jiras.to_table_top(:added)
+    puts @sprint.jiras.to_table_top(:removed)
+    puts @sprint.jiras.to_table_top_totals
 
-    puts @sprint.get_jiras(:closed).to_table
-    puts @sprint.get_jiras(:in_progress).to_table
-    puts @sprint.get_jiras(:open).to_table
-    puts @sprint.get_jiras(:backlog).to_table
+    puts @sprint.jiras.to_table(:closed)
+    puts @sprint.jiras.to_table(:in_progress)
+    puts @sprint.jiras.to_table(:open)
+    puts @sprint.jiras.to_table(:backlog)
 
     puts "|| Carried Over || TBD || TBD || TBD ||\n\n"
 end

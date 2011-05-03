@@ -1,19 +1,11 @@
 class Sprint
-    attr_accessor :week, :planned, :removed, :added
+    attr_accessor :week, :planned, :removed, :added, :jiras
 
     # Parse an entires sprint jira board
     def initialize
         @planned, @removed, @added = [], [], []
         parse_week
-        @jiras = {}
-
-        Jiras::STATES.each do |state|
-            @jiras[state.to_sym] = Jiras.new(state)
-        end
-    end
-
-    def get_jiras(state)
-        @jiras[state]
+        @jiras = Jiras.new
     end
 
     # Get all jiras where type is [Story, Bug, etc]
@@ -39,7 +31,8 @@ class Sprint
     # Sums the expected value for all jiras of a given states
     # See Jiras::STATES for valid states.
     def sum_expected(state)
-        get_jiras(state).sum_expected
+        Jiras.sum_expected(@jiras.of_state(state))
+        #get_jiras(state).sum_expected
     end
 
     def sum_all_expected

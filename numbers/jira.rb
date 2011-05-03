@@ -1,5 +1,5 @@
 class Jira
-    attr_accessor :key, :expected, :type, :title, :planned, :added, :removed
+    attr_accessor :key, :expected, :type, :title, :planned, :added, :removed, :state
 
     def initialize(key)
         @key = key[0].content.strip
