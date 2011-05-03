@@ -38,7 +38,7 @@ Jiras::STATES.each do |state|
     puts "="*50
     puts "#{state.to_s.upcase} | Expected Sum: #{@sprint.sum_expected(state)}"
     puts "="*50
-    Jiras.new(state).find_all.each do |j|
+    Jiras.new(state).jiras.each do |j|
         puts "#{j.key} | #{j.expected}\t| #{j.type}"
         if @start_of_sprint 
             # Serialize the jiras for comparison at the end of the sprint
@@ -56,6 +56,7 @@ Jiras::STATES.each do |state|
 end
 
 storage.close if @start_of_sprint
+jiras = Jiras.new
 
 if !@start_of_sprint
     # Build the retrospective table

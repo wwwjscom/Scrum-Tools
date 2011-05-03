@@ -7,8 +7,18 @@ class Sprint
         parse_week
         @jiras = {}
 
+        @jiras[state.to_sym] = Jiras.new
         Jiras::STATES.each do |state|
-            (@jiras[state.to_sym] = Jiras.new(state)).find_all
+
+            @domain = case state
+                      when :open then @@doc.xpath(Paths::OPEN)
+                      when :in_progress then @@doc.xpath(Paths::IN_PROGRESS)
+                      when :ready_for_review then @@doc.xpath(Paths::RFR)
+                      when :ready_for_acc_testing then @@doc.xpath(Paths::RFAT)
+                      when :closed then @@doc.xpath(Paths::CLOSED)
+                      when :backlog then @@doc.xpath(Paths::BACKLOG)
+                      end
+
         end
     end
 

@@ -3,17 +3,11 @@ class Jiras
     attr_accessor :domain, :jiras
 
     # Returns a new xml object restricted to a particular jira domain
-    def initialize(state)
-        @state = state
-        @domain = case state
-                 when :open then @@doc.xpath(Paths::OPEN)
-                 when :in_progress then @@doc.xpath(Paths::IN_PROGRESS)
-                 when :ready_for_review then @@doc.xpath(Paths::RFR)
-                 when :ready_for_acc_testing then @@doc.xpath(Paths::RFAT)
-                 when :closed then @@doc.xpath(Paths::CLOSED)
-                 when :backlog then @@doc.xpath(Paths::BACKLOG)
-                 end
-        find_all
+    def initialize
+        @jiras = []
+        STATES.each do |state|
+            find_all(state)
+        end
         self
     end
 
@@ -42,18 +36,17 @@ class Jiras
     end
 
     # Returns an array of Jira objects which fit the given domain
-    def find_all
+    def find_all(state)
         return [] unless @domain
-        @jiras = []
         @domain.each do |item|
             next unless item.xpath(Paths::KEY)
             j = Jira.new(item.xpath(Paths::KEY))
             j.title = item.xpath(Paths::TITLE)
             j.expected = item.xpath(Paths::EXPECTED)
             j.type = item.xpath(Paths::TYPE)
+            j.state = state
             @jiras << j
         end
-        @jiras
     end
 
     # Set can be planned, added, or removed to represent those JIRAs
